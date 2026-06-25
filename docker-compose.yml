@@ -1,0 +1,37 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: skillwallet
+    volumes:
+      - ./init_database.js:/docker-entrypoint-initdb.d/init_database.js:ro
+
+  backend:
+    image: node
+    container_name: backend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+
+  frontend:
+    image: node
+    container_name: frontend
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
